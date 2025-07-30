@@ -1,9 +1,10 @@
-import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [reactRouter()],
+  plugins: [react()],
   build: {
-    outDir: "dist",
+    outDir: "build", // or 'build' if you customized it
   },
+  base: "/", // VERY IMPORTANT for SPA routing
 });
