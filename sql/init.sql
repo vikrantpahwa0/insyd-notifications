@@ -19,6 +19,14 @@ CREATE TABLE comments (
   text TEXT
 );
 
+CREATE TABLE notifications (
+  id SERIAL PRIMARY KEY,
+  recipient_id INTEGER NOT NULL REFERENCES users(id),
+  comment_id INTEGER NOT NULL REFERENCES comments(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_read BOOLEAN DEFAULT FALSE
+);
+
 INSERT INTO users (email, password) VALUES
 ('user1@example.com', 'pass1'),
 ('user2@example.com', 'pass2'),
