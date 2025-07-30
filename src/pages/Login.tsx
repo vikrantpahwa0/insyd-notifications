@@ -1,6 +1,6 @@
 // pages/Login.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Adjust if your router has a different hook
+import { useNavigate } from "@tanstack/react-router";
 
 // Simulated authentication logic
 async function mockLogin(email: string, password: string): Promise<boolean> {
