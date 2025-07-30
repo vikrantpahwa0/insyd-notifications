@@ -12,6 +12,8 @@
     "vite": "^7.0.2"
   },
   "scripts": {
-    "dev": "react-router dev"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }
