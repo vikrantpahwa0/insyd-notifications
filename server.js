@@ -17,7 +17,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "insyd-notifications-g769ffamd-vikrantpahwa0s-projects.vercel.app", // or your frontend origin
+    origin: [
+      "https://insyd-notifications.onrender.com",
+      "insyd-notifications-g769ffamd-vikrantpahwa0s-projects.vercel.app",
+    ], // or your frontend origin
     methods: ["GET", "POST"],
   },
 });
