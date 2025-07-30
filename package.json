@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@react-router/dev": "^7.6.3"
+  },
+  "dependencies": {
+    "@react-router/node": "^7.6.3",
+    "@vitejs/plugin-react": "^4.6.0",
+    "isbot": "^5",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.7.1",
+    "socket.io-client": "^4.8.1",
+    "vite": "^7.0.2"
+  },
+  "scripts": {
+    "dev": "react-router dev"
+  }
+}
