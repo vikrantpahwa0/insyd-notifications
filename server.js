@@ -9,7 +9,9 @@ import postRoutes from "./routes/posts.js";
 import commentRoutes from "./routes/comments.js";
 import setupSocket from "./sockets/index.js";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const app = express();
 const server = http.createServer(app);
