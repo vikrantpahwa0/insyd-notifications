@@ -1,18 +1,33 @@
-// src/components/Post.jsx
-import React, { useState } from "react";
-// import axios from "../api";
+import React, { useState, useEffect } from "react";
 
-const Post = ({ key, post, user }) => {
+const Post = ({ key, post, user, comments, refreshComments }) => {
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(post.comments || []);
 
   const handleComment = async () => {
-    // const res = await axios.post(`/posts/${post.id}/comment`, {
-    //   userId: user.id,
-    //   content: comment,
-    // });
-    // setComments((prev) => [...prev, res.data]);
-    // setComment("");
+    try {
+      const res = await fetch(
+        `https://insyd-notifications.onrender.com/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            postId: post.id,
+            userId: user.userId,
+            text: comment,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to post comment");
+
+      setComment("");
+      await refreshComments();
+    } catch (err) {
+      console.error("Comment submission failed:", err);
+      window?.prompt?.("Failed to post comment. Try again?");
+    }
   };
 
   return (

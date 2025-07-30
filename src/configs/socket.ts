@@ -1,9 +1,12 @@
 import { io } from "socket.io-client";
 
-// Replace with your actual backend Socket.IO server URL
-const socket = io("http://localhost:3000", {
-  withCredentials: true, // only if you need cookies/auth
-  transports: ["websocket"], // recommended for stable connections
-});
+let socket;
 
-export default socket;
+export const initSocket = (userId) => {
+  socket = io("https://insyd-notifications.onrender.com", {
+    query: { userId },
+  });
+  return socket;
+};
+
+export const getSocket = () => socket;

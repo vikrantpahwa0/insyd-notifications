@@ -23,7 +23,7 @@ const loginRoute = createRoute({
 
 const landingPageRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/landing-page",
+  path: "/landing-page/$userId/$email", // <-- Route param
   component: LandingPage,
 });
 

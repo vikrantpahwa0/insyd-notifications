@@ -1,51 +1,89 @@
 import React, { useEffect, useState } from "react";
 import Post from "../components/Post";
 import NotificationBell from "../components/NotificationBell";
-import socket from "../configs/socket";
+import { initSocket, getSocket } from "../configs/socket";
+import { useParams } from "@tanstack/react-router";
 
-const LandingPage = ({ user = { email: "vikrantpahwa0@gmail.com" } }) => {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      name: "Sunset View",
-      url: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&auto=format",
-      comments: [
-        {
-          user: { email: "alice@example.com" },
-          content: "Amazing shot!",
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Mountain Peaks",
-      url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format",
-      comments: [
-        {
-          user: { email: "bob@example.com" },
-          content: "This is breathtaking.",
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "City Lights",
-      url: "https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&auto=format",
-      comments: [],
-    },
-  ]);
-
+const LandingPage = () => {
+  const { userId, email } = useParams({ from: "/landing-page/$userId/$email" });
+  const user = { email, userId };
+  const [posts, setPosts] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [commentsByPostId, setCommentsByPostId] = useState({});
+
+  const fetchCommentsForPost = async (postId) => {
+    try {
+      const res = await fetch(
+        `https://insyd-notifications.onrender.com/posts/comments/${postId}`
+      );
+      const data = await res.json();
+      setCommentsByPostId((prev) => ({
+        ...prev,
+        [postId]: data.comments || [],
+      }));
+    } catch (err) {
+      console.error("Error fetching post comments:", err);
+    }
+  };
 
   useEffect(() => {
-    socket.on("notification", (data) => {
-      setNotifications((prev) => [data, ...prev]);
-    });
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(
+          "https://insyd-notifications.onrender.com/posts"
+        );
+        const data = await res.json();
+        setPosts(data.postsWithComments);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  useEffect(() => {
+    // Fetch notifications when page mounts
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(
+          `https://insyd-notifications.onrender.com/notifications/${userId}`
+        );
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, [userId]);
+
+  useEffect(() => {
+    initSocket(userId);
+    const socket = getSocket();
+
+    const handleNotification = async (data) => {
+      const { fromUserId, message, postId } = data;
+
+      // Avoid self-notification
+      if (fromUserId === userId) return;
+
+      // Append new notification
+      const newNotification = {
+        message,
+      };
+
+      setNotifications((prev) => [newNotification, ...prev]);
+      await fetchCommentsForPost(postId);
+    };
+
+    socket.on("notify", handleNotification);
 
     return () => {
-      socket.off("notification");
+      socket.off("notify", handleNotification);
     };
-  }, []);
+  }, [userId]);
 
   return (
     <div style={styles.container}>
@@ -56,7 +94,13 @@ const LandingPage = ({ user = { email: "vikrantpahwa0@gmail.com" } }) => {
 
       <div style={styles.postList}>
         {posts.map((post) => (
-          <Post key={post.id} post={post} user={user} />
+          <Post
+            key={post.id}
+            post={post}
+            user={user}
+            comments={commentsByPostId[post.id] || post.comments || []}
+            refreshComments={() => fetchCommentsForPost(post.id)}
+          />
         ))}
       </div>
     </div>

@@ -2,15 +2,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
-// Simulated authentication logic
-async function mockLogin(email: string, password: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(email === "user@example.com" && password === "securepass");
-    }, 800); // Simulate network delay
-  });
-}
-
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -20,19 +11,38 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
 
-    const success = await mockLogin(email.trim(), password);
-    setLoading(false);
+    try {
+      const response = await fetch(
+        "https://insyd-notifications.onrender.com/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+          }),
+        }
+      );
 
-    if (success) {
-      navigate("/landing-page");
-    } else {
-      setError("Invalid email or password.");
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        navigate({
+          to: "/landing-page/$userId/$email",
+          params: { userId: data.user.id, email: data.user.email },
+        });
+      } else {
+        window.prompt(
+          "Login failed: " + (data.message || "Invalid credentials")
+        );
+      }
+    } catch (err) {
+      window.prompt("Server error. Please try again later.");
     }
   };
-
   return (
     <main style={styles.container}>
       <section style={styles.card}>

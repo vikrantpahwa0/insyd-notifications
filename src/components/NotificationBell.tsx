@@ -57,9 +57,7 @@ const NotificationBell = ({ notifications }) => {
                   color: "#333",
                 }}
               >
-                <strong>{n.user?.email}</strong> commented on{" "}
-                <em>{n.post?.name}</em>:<br />
-                <span style={{ color: "#666" }}>{n.content}</span>
+                <strong>{n.message}</strong>
               </div>
             ))
           )}
